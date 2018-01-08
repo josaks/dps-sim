@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="689.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
+  <tabs>
+      <Tab text="Simulation">
+        <content>
+          <fx:include fx:id="simulation" source="Simulation.fxml" />
+        </content>
+      </Tab>
+      <Tab text="Character">
+        <content>
+          <fx:include fx:id="character" source="Character.fxml" />
+        </content>
+      </Tab>
+    <Tab text="Weapon">
+      <content>
+        <fx:include fx:id="weapon" source="Weapon.fxml" />
+      </content>
+    </Tab>
+    <Tab text="Procs">
+      <content>
+        <fx:include fx:id="procs" source="Procs.fxml" />
+      </content>
+    </Tab>
+  </tabs>
+</TabPane>
