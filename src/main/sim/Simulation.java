@@ -9,7 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import main.utils.ATTACKRESULT;
-import main.utils.AttackTable;
+import main.utils.WhiteAttackTable;
+import main.utils.Constants;
 
 import org.apache.commons.lang3.time.StopWatch;
 import static java.util.concurrent.TimeUnit.*;
@@ -120,7 +121,7 @@ public class Simulation {
 	    
 	    private AbilityUser() {
 	        int mhWeapSkill = character.findMhWeaponSkill();
-	        AttackTable aTable = new AttackTable(character.getHit(), character.getCrit(), mhWeapSkill);
+	        WhiteAttackTable aTable = new WhiteAttackTable(character.getHit(), character.getCrit(), mhWeapSkill, Constants.getRandomIntWithCeiling(1000));
 	        abilityList.add(new Bloodthirst(character.getAp(), aTable, damageCounter, character.findMhWeaponSkill()));
 	        abilityList.add(new Whirlwind(character.getMhWeaponDamageMin(), character.getMhWeaponDamageMax(), aTable, damageCounter, mhWeapSkill));
 	    }

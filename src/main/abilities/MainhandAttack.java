@@ -3,7 +3,8 @@ package main.abilities;
 import main.counters.DamageCounter;
 import main.model.Player;
 import main.utils.ATTACKRESULT;
-import main.utils.AttackTable;
+import main.utils.WhiteAttackTable;
+import main.utils.Constants;
 
 public class MainhandAttack implements Swing{
     Player character;
@@ -19,8 +20,9 @@ public class MainhandAttack implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)));
-        AttackTable aTable = new AttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill());
-        ATTACKRESULT result = aTable.mhAttackRoll();
+        WhiteAttackTable aTable = new WhiteAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), 
+        		Constants.getRandomIntWithCeiling(1000), Constants.getRandomIntWithCeiling(1000));
+        ATTACKRESULT result = aTable.mhAttack();
         damage *= ATTACKRESULT.getDamageModifier(result, character.findMhWeaponSkill());
         character.addRageByDamage((int)damage);
         dmgCounter.addDamage((int)damage);

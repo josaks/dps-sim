@@ -3,7 +3,8 @@ package main.abilities;
 import main.counters.DamageCounter;
 import main.model.Player;
 import main.utils.ATTACKRESULT;
-import main.utils.AttackTable;
+import main.utils.Constants;
+import main.utils.YellowAttackTable;
 
 public class HeroicStrike implements Swing{
     Player character;
@@ -20,8 +21,9 @@ public class HeroicStrike implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)) + 157);
-        AttackTable aTable = new AttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill());
-        ATTACKRESULT result = aTable.yellowAttackRoll();
+        YellowAttackTable aTable = new YellowAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), 
+        		Constants.getRandomIntWithCeiling(1000), Constants.getRandomIntWithCeiling(1000));
+        ATTACKRESULT result = aTable.yellowAttack();
         damage *= ATTACKRESULT.getDamageModifier(result, character.findMhWeaponSkill());
         character.removeRage(RAGECOST);
         dmgCounter.addDamage((int)damage);
