@@ -1,9 +1,9 @@
 package main.abilities;
 
-import main.counters.DamageCounter;
 import java.util.Timer;
 import java.util.TimerTask;
 import main.utils.ATTACKRESULT;
+import main.utils.Constants;
 import main.utils.YellowAttackTable;
 
 public class Whirlwind implements Ability{
@@ -11,17 +11,15 @@ public class Whirlwind implements Ability{
     private Timer timer = new Timer();
     private static final int RAGECOST = 25;
     private static final int COOLDOWN = 10000;
-    DamageCounter dmgCounter;
     YellowAttackTable attackTable;
     int mhWeaponSkill;
     int minWeapDmg;
     int maxWeapDmg;
     
-    public Whirlwind(int minWeapDmg, int maxWeapDmg, YellowAttackTable attackTable, DamageCounter dmgCounter, int mhWeaponSkill) {
+    public Whirlwind(int minWeapDmg, int maxWeapDmg, YellowAttackTable attackTable, int mhWeaponSkill) {
         this.minWeapDmg = minWeapDmg;
         this.maxWeapDmg = maxWeapDmg;
         this.attackTable = attackTable;
-        this.dmgCounter = dmgCounter;
         this.mhWeaponSkill = mhWeaponSkill;
     }
     
@@ -44,11 +42,11 @@ public class Whirlwind implements Ability{
         cooldown();
         //calculating whirlwind damage
         int damage = (int) ((minWeapDmg + (maxWeapDmg-minWeapDmg)*Math.random()));
-        ATTACKRESULT result = attackTable.yellowAttack();
+        ATTACKRESULT result = attackTable.attack(Constants.getRandomIntWithCeiling(1000),
+                Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getDamageModifier(result, mhWeaponSkill);
-        dmgCounter.addDamage(damage);
         String stringToDisplay = "Whirlwind " + result + " for " + damage;
-        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay);
+        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay, damage);
         return arContainer;
     }
     

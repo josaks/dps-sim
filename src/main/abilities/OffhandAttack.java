@@ -7,4 +7,7 @@ public class OffhandAttack implements Swing{
         throw new UnsupportedOperationException("offhandattack not implemented yet");
     }
 
+    public int getRageCost() {
+        return 0;
+    }
 }

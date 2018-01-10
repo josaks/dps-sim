@@ -7,19 +7,13 @@ public class WhiteAttackTable {
     private final int crit;
     private final int mhWeaponSkill;
     private final int ohWeaponSkill;
-    private final int roll;
     private int bossDefSkill;
     
-    public WhiteAttackTable(int hit, int crit, int mhWeaponSkill, int ohWeaponSkill, int roll) {
-    	if(roll <= 0) throw new IllegalArgumentException("roll can not be 0 or less");
-        if(roll > 1000) throw new IllegalArgumentException("roll can not be more than 1000");
-        
+    public WhiteAttackTable(int hit, int crit, int mhWeaponSkill, int ohWeaponSkill) {
         this.hit = hit;
         this.crit = crit;
         this.mhWeaponSkill = mhWeaponSkill;
         this.ohWeaponSkill = ohWeaponSkill;
-        this.roll = roll;
-        this.bossDefSkill = Constants.bossDefSkill;
     }
     
     public void setBossDefSkill(int bossDefSkill){
@@ -28,7 +22,10 @@ public class WhiteAttackTable {
     }
     
     //determine attackresult for a white mh attack
-    public ATTACKRESULT mhAttack() {
+    public ATTACKRESULT attack(int roll) {
+        if(roll <= 0) throw new IllegalArgumentException("roll can not be 0 or less");
+        if(roll > 1000) throw new IllegalArgumentException("roll can not be more than 1000");
+        
         //assuming 5,6% dodge chance against bosses
         int dodgeChance = 56;
         //setting weaponskill correctly

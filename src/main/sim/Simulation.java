@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import main.utils.ATTACKRESULT;
 import main.utils.WhiteAttackTable;
+import main.utils.YellowAttackTable;
 import main.utils.Constants;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -45,6 +46,9 @@ public class Simulation {
 	private final ScheduledExecutorService scheduler;
 	//thread safe queue used for passing the combatlog to the controller/gui
 	Queue<String> combatLogQueue = new ConcurrentLinkedQueue<String>();
+	
+	//constants
+	private static int minimumRageForHS = 70;
 	
 	public Simulation(Player character) {
 		//setting this simulations Player
@@ -87,6 +91,9 @@ public class Simulation {
 	
 	//starts this simulation
 	public void begin() {
+	    yellowATable = new YellowAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill());
+	    whiteATable = new WhiteAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), character.findOhWeaponSkill());
+	    
 		stopwatch.start();
 		
 		//cannot schedule task with period of 0
@@ -115,46 +122,44 @@ public class Simulation {
 		character.setFlurryStacks(0);
 	}
 	
+	YellowAttackTable yellowATable; 
+	
 	private class AbilityUser implements Runnable{
 	    private List<Ability> abilityList = new LinkedList<Ability>();
 	    private GlobalCooldown gcd = new GlobalCooldown();
 	    
 	    private AbilityUser() {
-	        int mhWeapSkill = character.findMhWeaponSkill();
-	        WhiteAttackTable aTable = new WhiteAttackTable(character.getHit(), character.getCrit(), mhWeapSkill, Constants.getRandomIntWithCeiling(1000));
-	        abilityList.add(new Bloodthirst(character.getAp(), aTable, damageCounter, character.findMhWeaponSkill()));
-	        abilityList.add(new Whirlwind(character.getMhWeaponDamageMin(), character.getMhWeaponDamageMax(), aTable, damageCounter, mhWeapSkill));
+	        abilityList.add(new Bloodthirst(character.getAp(), yellowATable, character.findMhWeaponSkill()));
+	        abilityList.add(new Whirlwind(character.getMhWeaponDamageMin(),
+	                character.getMhWeaponDamageMax(), yellowATable, character.findMhWeaponSkill()));
 	    }
 	    
 	    public void run() {
 	        if(gcd.isReady()) {
-	            ATTACKRESULT result = ATTACKRESULT.MISS;
 	            for(Ability a : abilityList) {
 	                if(a.isReady()) {
 	                    if(character.removeRage(a.getRageCost())) {
-	                        AttackResultContainer arContainer = a.perform();
-	                        result = arContainer.getAttackResult();
-	                        display(arContainer.getAttackResultString());
+	                        registerAttackResult(a.perform());
 	                        gcd.use();
 	                    }
 	                    break;
 	                }
 	            }
-	            compareAttackResult(result);
+	            
             }
 	    }
 	}
 	
+	WhiteAttackTable whiteATable;
+	
     private class MainhandSwing implements Runnable{
         public void run() {
-            ATTACKRESULT result;
             Swing swing;
-            if(character.getRage() > 80) swing = new HeroicStrike(character, damageCounter);
-            else swing = new MainhandAttack(character, damageCounter);
-            AttackResultContainer arContainer = swing.perform();
-            result = arContainer.getAttackResult();
-            display(arContainer.getAttackResultString());
-            compareAttackResult(result);
+            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike(character, yellowATable);
+            else swing = new MainhandAttack(character, whiteATable);
+            if(character.removeRage(swing.getRageCost())) {
+                registerAttackResult(swing.perform());
+            }
         }
     }
 	
@@ -178,12 +183,11 @@ public class Simulation {
 			character.consumeFlurryStack();
 			ATTACKRESULT result;
 			Swing swing;
-            if(character.getRage() > 80) swing = new HeroicStrike(character, damageCounter);
-            else swing = new MainhandAttack(character, damageCounter);
-            AttackResultContainer arContainer = swing.perform();
-            result = arContainer.getAttackResult();
-            display(arContainer.getAttackResultString());
-			compareAttackResult(result);
+            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike(character, yellowATable);
+            else swing = new MainhandAttack(character, whiteATable);
+            if(character.removeRage(swing.getRageCost())) {
+                registerAttackResult(swing.perform());
+            }
 			if(character.getFlurryStacks() == 0) {
 			    mhSwing.cancel(false);
 			    mhSwing = scheduler.scheduleAtFixedRate(new MainhandSwing(), 0, character.getMainhandSpeed(), MILLISECONDS);
@@ -197,6 +201,12 @@ public class Simulation {
 	        throw new UnsupportedOperationException("offhandswing not implemented yet");
 	    }
 	}
+	
+	private void registerAttackResult(AttackResultContainer arc) {
+        damageCounter.addDamage(arc.getDamage());
+        display(arc.getAttackResultString());
+        compareAttackResult(arc.getAttackResult());
+    }
 	
 	private void compareAttackResult(ATTACKRESULT result) {
 	    if(ATTACKRESULT.compareWithMany(result, ATTACKRESULT.HIT, ATTACKRESULT.CRIT, ATTACKRESULT.GLANCING)) {
@@ -228,9 +238,12 @@ public class Simulation {
 	    if(windfuryOn) {
 	        if(Math.random() < 0.20) {
 	            display("Windfury proc!");
-	            MainhandAttack mhAtk = new MainhandAttack(character, damageCounter);
-	               AttackResultContainer arContainer = mhAtk.perform();
-	               display(arContainer.getAttackResultString());
+	            MainhandAttack mhAtk = new MainhandAttack(character, whiteATable);
+	            AttackResultContainer arContainer = mhAtk.perform();
+	            damageCounter.addDamage(arContainer.getDamage());
+	            if(arContainer.getAttackResult().equals(ATTACKRESULT.CRIT)) gainFlurry();
+	            countProcDamage(character.getMhProc());
+	            display(arContainer.getAttackResultString());
 	        } 
 	    }
 	}

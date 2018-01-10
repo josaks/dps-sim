@@ -1,25 +1,23 @@
 package main.abilities;
 
-import main.counters.DamageCounter;
 import java.util.Timer;
 import java.util.TimerTask;
 import main.utils.ATTACKRESULT;
 import main.utils.YellowAttackTable;
+import main.utils.Constants;
 
 public class Bloodthirst implements Ability{
     private boolean ready = true;
     private Timer timer = new Timer();
     private static final int RAGECOST = 30;
     private static final int COOLDOWN = 6000;
-    DamageCounter dmgCounter;
     int ap;
     YellowAttackTable attackTable;
     int mhWeaponSkill;
     
-    public Bloodthirst(int ap, YellowAttackTable attackTable, DamageCounter dmgCounter, int mhWeaponSkill) {
+    public Bloodthirst(int ap, YellowAttackTable attackTable, int mhWeaponSkill) {
         this.ap = ap;
         this.attackTable = attackTable;
-        this.dmgCounter = dmgCounter;
         this.mhWeaponSkill = mhWeaponSkill;
     }
     
@@ -43,11 +41,11 @@ public class Bloodthirst implements Ability{
         cooldown();
         //calculating bloodthirst damage
         int damage = (int) (ap * 0.45);
-        ATTACKRESULT result = attackTable.yellowAttack();
+        ATTACKRESULT result = attackTable.attack(Constants.getRandomIntWithCeiling(1000),
+                Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getDamageModifier(result, mhWeaponSkill);
-        dmgCounter.addDamage(damage);
         String stringToDisplay = "Bloodthirst " + result + " for " + damage;
-        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay);
+        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay, damage);
         return arContainer;
     }
     

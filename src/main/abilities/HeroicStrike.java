@@ -1,19 +1,19 @@
 package main.abilities;
 
-import main.counters.DamageCounter;
 import main.model.Player;
 import main.utils.ATTACKRESULT;
 import main.utils.Constants;
+import main.utils.WhiteAttackTable;
 import main.utils.YellowAttackTable;
 
 public class HeroicStrike implements Swing{
     Player character;
-    DamageCounter dmgCounter;
     private final int RAGECOST = 15;
+    YellowAttackTable aTable;
     
-    public HeroicStrike(Player character, DamageCounter dmgCounter) {
+    public HeroicStrike(Player character, YellowAttackTable aTable) {
         this.character = character;
-        this.dmgCounter = dmgCounter;
+        this.aTable = aTable;
     }
     
     @Override
@@ -21,14 +21,15 @@ public class HeroicStrike implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)) + 157);
-        YellowAttackTable aTable = new YellowAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), 
-        		Constants.getRandomIntWithCeiling(1000), Constants.getRandomIntWithCeiling(1000));
-        ATTACKRESULT result = aTable.yellowAttack();
+        ATTACKRESULT result = aTable.attack(Constants.getRandomIntWithCeiling(1000),
+                Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getDamageModifier(result, character.findMhWeaponSkill());
-        character.removeRage(RAGECOST);
-        dmgCounter.addDamage((int)damage);
         String stringToDisplay = "Heroic Strike " + result.toString() + " for " + damage;
-        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay);
+        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay, (int)damage);
         return arContainer;
+    }
+    
+    public int getRageCost() {
+        return RAGECOST;
     }
 }

@@ -3,12 +3,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons">
 		<attributes>
-			<attribute name="annotationpath" value="C:/Users/josak_000/libraries/commons-lang3-3.7/commons-lang3-3.7-javadoc.jar"/>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/josak_000/libraries/commons-lang3-3.7"/>
+			<attribute name="annotationpath" value="C:/Users/Johan/Documents/libraries/commons-lang3-3.7/commons-lang3-3.7.jar"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/junit"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/josak_000/libraries/commons-lang3-3.7/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Johan/Documents/libraries/junit-4.12/junit-4.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

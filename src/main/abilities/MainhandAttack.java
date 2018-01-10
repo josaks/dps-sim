@@ -1,6 +1,5 @@
 package main.abilities;
 
-import main.counters.DamageCounter;
 import main.model.Player;
 import main.utils.ATTACKRESULT;
 import main.utils.WhiteAttackTable;
@@ -8,11 +7,11 @@ import main.utils.Constants;
 
 public class MainhandAttack implements Swing{
     Player character;
-    DamageCounter dmgCounter;
+    WhiteAttackTable aTable;
     
-    public MainhandAttack(Player character, DamageCounter dmgCounter) {
+    public MainhandAttack(Player character, WhiteAttackTable aTable) {
         this.character = character;
-        this.dmgCounter = dmgCounter;
+        this.aTable = aTable;
     }
     
     @Override
@@ -20,14 +19,15 @@ public class MainhandAttack implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)));
-        WhiteAttackTable aTable = new WhiteAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), 
-        		Constants.getRandomIntWithCeiling(1000), Constants.getRandomIntWithCeiling(1000));
-        ATTACKRESULT result = aTable.mhAttack();
+        ATTACKRESULT result = aTable.attack(Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getDamageModifier(result, character.findMhWeaponSkill());
         character.addRageByDamage((int)damage);
-        dmgCounter.addDamage((int)damage);
         String stringToDisplay = "MH " + result.toString() + " for " + damage;
-        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay);
+        AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay, (int)damage);
         return arContainer;
+    }
+    
+    public int getRageCost() {
+        return 0;
     }
 }
