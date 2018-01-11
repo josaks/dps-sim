@@ -3,13 +3,19 @@ package main.counters;
 public class DamageCounter {
 	private int damage = 0;
 
-    public synchronized void addDamage(int damage){
-        this.damage += damage;
+    public void addDamage(int damage){
+        synchronized(this) {
+            this.damage += damage;
+        }
     }
-    public synchronized int getDamage() {
-        return damage;
+    public int getDamage() {
+        synchronized(this) {
+            return damage;
+        }
     }
-    public synchronized void reset() {
-    	damage = 0;
+    public void reset() {
+        synchronized(this) {
+            damage = 0;
+        }
     }
 }

@@ -181,7 +181,6 @@ public class Simulation {
 	private class FlurryfiedMainHandSwing implements Runnable{
 		public void run() {
 			character.consumeFlurryStack();
-			ATTACKRESULT result;
 			Swing swing;
             if(character.getRage() > minimumRageForHS) swing = new HeroicStrike(character, yellowATable);
             else swing = new MainhandAttack(character, whiteATable);
@@ -203,8 +202,7 @@ public class Simulation {
 	}
 	
 	private void registerAttackResult(AttackResultContainer arc) {
-        damageCounter.addDamage(arc.getDamage());
-        display(arc.getAttackResultString());
+	    registerDamage(arc.getDamage(), arc.getAttackResultString());
         compareAttackResult(arc.getAttackResult());
     }
 	
@@ -222,8 +220,7 @@ public class Simulation {
 		if(proc != null) {
 			int procDamage = proc.proc();
 			if(procDamage > 0) {
-				damageCounter.addDamage(procDamage);
-				display(proc.getName() + " procced for " + procDamage);
+			    registerDamage(procDamage, proc.getName() + " procced for " + procDamage);
 			}
 		}
 	}
@@ -240,12 +237,16 @@ public class Simulation {
 	            display("Windfury proc!");
 	            MainhandAttack mhAtk = new MainhandAttack(character, whiteATable);
 	            AttackResultContainer arContainer = mhAtk.perform();
-	            damageCounter.addDamage(arContainer.getDamage());
+	            registerDamage(arContainer.getDamage(), arContainer.getAttackResultString());
 	            if(arContainer.getAttackResult().equals(ATTACKRESULT.CRIT)) gainFlurry();
 	            countProcDamage(character.getMhProc());
-	            display(arContainer.getAttackResultString());
 	        } 
 	    }
+	}
+	
+	public void registerDamage(int damage, String displayString) {
+	    damageCounter.addDamage((int)(damage * character.getDamageModifier()));
+	    display(displayString);
 	}
 	
 	public static boolean compareWithMany(String first, String next, String ... rest)
