@@ -9,8 +9,6 @@ public class WhiteAttackTableTest {
 	//mhAttack()
 	@Test
 	public void rollOfOneShouldReturnMiss(){
-		WhiteAttackTable at = new WhiteAttackTable(80, 300, 300, 300, 1);
-		assertEquals(at.mhAttack(), ATTACKRESULT.MISS);
 		
 		
 	}

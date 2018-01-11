@@ -17,6 +17,7 @@ public class Player {
 	private int daggerSkill;
 	private Weapon weapon;
 	private int flurryStacks;
+	private double damageModifier;
 	
 	public Proc getMhProc() {
 		return weapon.getMhProc();
@@ -64,6 +65,7 @@ public class Player {
         this.daggerSkill = builder.daggerSkill;
         this.rage = builder.rageCounter;
         this.flurryStacks = builder.flurryStacks;
+        this.damageModifier = 1.00;
     }
 	
 	public static Hit builder() {
@@ -156,7 +158,12 @@ public class Player {
 	    public Player build();
 	}
 	
-	
+	public double getDamageModifier() {
+	    return this.damageModifier;
+	}
+	public void setDamageModifier(double dm) {
+	    this.damageModifier = dm;
+	}
 	public int getDaggerSkill() {
 		return daggerSkill;
 	}
