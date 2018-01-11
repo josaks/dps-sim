@@ -27,6 +27,11 @@ public class SimulationController {
 	Weapon weapon;
 	Proc mhProc;
 	Proc ohProc;
+	private int durationInSeconds= 6;
+	
+	private void setDurationInSeconds(int durationInSeconds) {
+	    this.durationInSeconds = durationInSeconds;
+	}
 	
 	public void initialize() {
 		combatLog.setEditable(false);
@@ -80,8 +85,9 @@ public class SimulationController {
 			GUIUpdaterTimer.schedule(new TimerTask() {
 				public void run() {
 					Platform.runLater(() -> {
+					    long time = sim.getTime() / 1000;
+					    if(time >= durationInSeconds) stopSim();
 						int damageDone = sim.getDamage();
-						long time = sim.getTime() / 1000;
 						double currentDps = 0;
 						if(time != 0) currentDps = damageDone / time;
 						damage.setText(Integer.toString(damageDone));
@@ -95,13 +101,17 @@ public class SimulationController {
 			}, 0, 10);
 		});
 		
-		//set what happens when user clicks stop button
+		//user clicks stop button
 		stopSim.setOnAction((e) -> {
-			GUIUpdaterTimer.cancel();
-			GUIUpdaterTimer = new Timer();
-			sim.stop();
-			windfury.setDisable(false);
+			stopSim();
 		});
+	}
+	
+	private void stopSim() {
+	    GUIUpdaterTimer.cancel();
+        GUIUpdaterTimer = new Timer();
+        sim.stop();
+        windfury.setDisable(false);
 	}
 	
 	public void setSim(Simulation sim) {
