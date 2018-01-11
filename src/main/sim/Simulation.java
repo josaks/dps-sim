@@ -11,7 +11,6 @@ import java.util.concurrent.ScheduledFuture;
 import main.utils.ATTACKRESULT;
 import main.utils.WhiteAttackTable;
 import main.utils.YellowAttackTable;
-import main.utils.Constants;
 
 import org.apache.commons.lang3.time.StopWatch;
 import static java.util.concurrent.TimeUnit.*;

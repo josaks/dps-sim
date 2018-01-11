@@ -7,6 +7,11 @@ import main.sim.Simulation;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import main.utils.WEAPONTYPE;
 
 import javafx.application.Platform;
@@ -22,12 +27,13 @@ import javafx.scene.paint.Color;
 public class SimulationController {
 	Simulation sim;
 	Queue<String> combatLogQueue;
-	Timer GUIUpdaterTimer = new Timer();
+	ScheduledExecutorService scheduler;
+	ScheduledFuture<?> guiUpdate;
 	Player character;
 	Weapon weapon;
 	Proc mhProc;
 	Proc ohProc;
-	private int durationInSeconds= 6;
+	private int durationInSeconds= 20;
 	
 	private void setDurationInSeconds(int durationInSeconds) {
 	    this.durationInSeconds = durationInSeconds;
@@ -73,6 +79,9 @@ public class SimulationController {
 		character.setWeapon(weapon);
 		sim = new Simulation(character);
 		
+		//set scheduler
+        this.scheduler = Executors.newScheduledThreadPool(1);
+		
 		//gets the combatlogqueue
 		combatLogQueue = sim.getCombatLogQueue();
 		
@@ -82,23 +91,23 @@ public class SimulationController {
 		    windfury.setDisable(true);
 			combatLog.clear();
 			sim.begin();
-			GUIUpdaterTimer.schedule(new TimerTask() {
+			guiUpdate = scheduler.scheduleAtFixedRate(new Runnable() {
 				public void run() {
+				    time = sim.getTime() / 1000;
+				    damageDone = sim.getDamage();
 					Platform.runLater(() -> {
-					    long time = sim.getTime() / 1000;
-					    if(time >= durationInSeconds) stopSim();
-						int damageDone = sim.getDamage();
-						double currentDps = 0;
-						if(time != 0) currentDps = damageDone / time;
-						damage.setText(Integer.toString(damageDone));
-						timeElapsed.setText(Long.toString(time));
-						dps.setText(Double.toString(currentDps));
+						setDps(time, damageDone);
 						clearRageBar();
 						updateRageBar();
 						while(!combatLogQueue.isEmpty()) combatLog.appendText(combatLogQueue.poll());
+						
+						//if durationInSeconds is 0 never stop the sim (unless button clicked ofc)
+						if(durationInSeconds != 0) {
+						    if(time >= durationInSeconds) stopSim();
+						}
 					});
 				}
-			}, 0, 10);
+			}, 0, 10, TimeUnit.MILLISECONDS);
 		});
 		
 		//user clicks stop button
@@ -107,10 +116,22 @@ public class SimulationController {
 		});
 	}
 	
+	//how long the simulation has been running for
+	long time;
+	//damage done in the simulation
+	int damageDone;
+	
+	private void setDps(long time, int damageDone) {
+	    damage.setText(Integer.toString(damageDone));
+        timeElapsed.setText(Long.toString(time));
+        double currentDps = time != 0 ? damageDone / time : 0;
+        dps.setText(Double.toString(currentDps));
+	}
+	
 	private void stopSim() {
-	    GUIUpdaterTimer.cancel();
-        GUIUpdaterTimer = new Timer();
+	    guiUpdate.cancel(false);
         sim.stop();
+        
         windfury.setDisable(false);
 	}
 	
