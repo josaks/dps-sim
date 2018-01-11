@@ -33,7 +33,7 @@ public class SimulationController {
 	Weapon weapon;
 	Proc mhProc;
 	Proc ohProc;
-	private int durationInSeconds= 20;
+	private int durationInSeconds= 0;
 	
 	private void setDurationInSeconds(int durationInSeconds) {
 	    this.durationInSeconds = durationInSeconds;
@@ -114,6 +114,10 @@ public class SimulationController {
 		stopSim.setOnAction((e) -> {
 			stopSim();
 		});
+		
+		duration.textProperty().addListener((e) -> {
+            setDurationInSeconds(Integer.parseInt(duration.getText()));
+       });
 	}
 	
 	//how long the simulation has been running for
@@ -171,6 +175,8 @@ public class SimulationController {
 		this.ohProc = ohProc;
 	}
 	
+	@FXML
+	private TextField duration;
 	@FXML
 	private Canvas canvas;
 	@FXML
