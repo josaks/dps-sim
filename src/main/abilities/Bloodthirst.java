@@ -9,8 +9,8 @@ import main.utils.Constants;
 public class Bloodthirst implements Ability{
     private boolean ready = true;
     private Timer timer = new Timer();
-    private static final int RAGECOST = 30;
-    private static final int COOLDOWN = 6000;
+    private final int RAGECOST = 30;
+    private final int COOLDOWN = 6000;
     int ap;
     YellowAttackTable attackTable;
     int mhWeaponSkill;
@@ -32,7 +32,7 @@ public class Bloodthirst implements Ability{
             public void run() {
                 ready = true;
             }
-        }, Bloodthirst.COOLDOWN);
+        }, COOLDOWN);
     }
     
     @Override

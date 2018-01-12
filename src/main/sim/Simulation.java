@@ -29,7 +29,7 @@ import main.model.Proc;
 
 //represents a DPS simulation
 public class Simulation {
-	//how long the simulation took before being stopped
+	//how long the simulation has been running for
 	private StopWatch stopwatch;
 	//how much damage was done
 	private DamageCounter damageCounter;
@@ -45,6 +45,23 @@ public class Simulation {
 	private final ScheduledExecutorService scheduler;
 	//thread safe queue used for passing the combatlog to the controller/gui
 	Queue<String> combatLogQueue = new ConcurrentLinkedQueue<String>();
+	//how long the simulation should run for
+	private int durationInSeconds= 0;
+	//health of the boss being attacked
+	private int bossHealth = 0;
+	
+	public int getBossHealth() {
+        return bossHealth;
+    }
+    public void setBossHealth(int bossHealth) {
+        this.bossHealth = bossHealth;
+    }
+    public void setDurationInSeconds(int durationInSeconds) {
+        this.durationInSeconds = durationInSeconds;
+    }
+	public int getDurationInSeconds() {
+	    return durationInSeconds;
+	}
 	
 	//constants
 	private static int minimumRageForHS = 70;

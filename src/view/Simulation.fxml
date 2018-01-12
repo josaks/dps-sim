@@ -36,10 +36,10 @@
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="66.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="85.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="159.0" minHeight="0.0" prefHeight="53.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="41.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="66.0" minHeight="0.0" prefHeight="27.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="85.0" minHeight="5.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="159.0" minHeight="0.0" prefHeight="31.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="168.0" minHeight="10.0" prefHeight="68.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="168.0" minHeight="10.0" prefHeight="63.0" vgrow="SOMETIMES" />
               </rowConstraints>
@@ -50,8 +50,11 @@
                   <TextField fx:id="damage" GridPane.columnIndex="1" />
                   <TextField fx:id="timeElapsed" prefHeight="25.0" prefWidth="125.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <TextField fx:id="dps" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Set simulation duration(0 for infinite run, or till boss is dead)" wrappingWidth="127.8359375" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-                  <TextField fx:id="duration" promptText="in seconds" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation duration in seconds(0 = infinite)" wrappingWidth="127.8359375" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+                  <TextField fx:id="duration" promptText="0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Running conditions" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Boss health(0 = infinite)" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+                  <TextField fx:id="bossHealth" promptText="0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                </children>
             </GridPane>
             <GridPane GridPane.rowIndex="1">

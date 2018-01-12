@@ -9,8 +9,8 @@ import main.utils.YellowAttackTable;
 public class Whirlwind implements Ability{
     private boolean ready = true;
     private Timer timer = new Timer();
-    private static final int RAGECOST = 25;
-    private static final int COOLDOWN = 10000;
+    private final int RAGECOST = 25;
+    private final int COOLDOWN = 10000;
     YellowAttackTable attackTable;
     int mhWeaponSkill;
     int minWeapDmg;

@@ -33,11 +33,6 @@ public class SimulationController {
 	Weapon weapon;
 	Proc mhProc;
 	Proc ohProc;
-	private int durationInSeconds= 0;
-	
-	private void setDurationInSeconds(int durationInSeconds) {
-	    this.durationInSeconds = durationInSeconds;
-	}
 	
 	public void initialize() {
 		combatLog.setEditable(false);
@@ -89,22 +84,27 @@ public class SimulationController {
 		//updates gui from the fx application thread through runlater method
 		startSim.setOnAction((e) -> {
 		    windfury.setDisable(true);
+		    duration.setEditable(false);
 			combatLog.clear();
 			sim.begin();
+			
+			
 			guiUpdate = scheduler.scheduleAtFixedRate(new Runnable() {
 				public void run() {
 				    time = sim.getTime() / 1000;
 				    damageDone = sim.getDamage();
+				    int duration = sim.getDurationInSeconds();
+				    int bossHealth = sim.getBossHealth();
+				    
 					Platform.runLater(() -> {
 						setDps(time, damageDone);
 						clearRageBar();
 						updateRageBar();
 						while(!combatLogQueue.isEmpty()) combatLog.appendText(combatLogQueue.poll());
 						
-						//if durationInSeconds is 0 never stop the sim (unless button clicked ofc)
-						if(durationInSeconds != 0) {
-						    if(time >= durationInSeconds) stopSim();
-						}
+						//stop sim if time is up or boss is dead
+						if(duration != 0 && time >= duration) stopSim();
+						if(bossHealth != 0 && damageDone >= bossHealth) stopSim();
 					});
 				}
 			}, 0, 10, TimeUnit.MILLISECONDS);
@@ -115,9 +115,15 @@ public class SimulationController {
 			stopSim();
 		});
 		
-		duration.textProperty().addListener((e) -> {
-            setDurationInSeconds(Integer.parseInt(duration.getText()));
-       });
+		duration.textProperty().addListener((a,o,n) -> {
+            if(n.equals("")) sim.setDurationInSeconds(0);
+            else sim.setDurationInSeconds(Integer.parseInt(n));
+		});
+		
+		bossHealth.textProperty().addListener((a,o,n) ->{
+		    if(n.equals("")) sim.setBossHealth(0);
+            else sim.setBossHealth(Integer.parseInt(n));
+		});
 	}
 	
 	//how long the simulation has been running for
@@ -135,7 +141,7 @@ public class SimulationController {
 	private void stopSim() {
 	    guiUpdate.cancel(false);
         sim.stop();
-        
+        duration.setEditable(true);
         windfury.setDisable(false);
 	}
 	
@@ -175,6 +181,8 @@ public class SimulationController {
 		this.ohProc = ohProc;
 	}
 	
+	@FXML
+	private TextField bossHealth;
 	@FXML
 	private TextField duration;
 	@FXML
