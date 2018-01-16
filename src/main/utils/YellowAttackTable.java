@@ -1,6 +1,6 @@
 package main.utils;
-
-public class YellowAttackTable {
+/*
+public class YellowAttackTable{
 	private final int hit;
     private final int crit;
     private final int mhWeaponSkill;
@@ -28,3 +28,4 @@ public class YellowAttackTable {
         else return ATTACKRESULT.HIT;
     }
 }
+*/

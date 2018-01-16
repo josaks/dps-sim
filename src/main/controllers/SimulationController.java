@@ -5,13 +5,12 @@ import main.model.Proc;
 import main.model.Weapon;
 import main.sim.Simulation;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import main.utils.Constants;
 import main.utils.WEAPONTYPE;
 
 import javafx.application.Platform;
@@ -39,33 +38,38 @@ public class SimulationController {
 		damage.setEditable(false);
 		timeElapsed.setEditable(false);
 		dps.setEditable(false);
+		deathwish.setDisable(true);
 		clearRageBar();
 		
 		//initialize sim
 		weapon = Weapon.builder()
-		            .mhWeaponDamageMin(192)
-		            .mhWeaponDamageMax(289)
+		            .mhWeaponDamageMin(100)
+		            .mhWeaponDamageMax(100)
 		            .mhSpeed(3400)
 		            .normalizedMhSpeed(Weapon.TWOHAND)
 		            .mhWeaponType(WEAPONTYPE.SWORD)
 		            .build();
 		character = Player.builder()
-		                .hit(80)
-		                .crit(330)
-		                .ap(1500)
+		                .hit(0)
+		                .crit(0)
+		                .ap(500)
 		                .build();
 		character.setWeapon(weapon);
 		createNewSimulation();
 		
 		//keeps the combatlog scrolled down
-		combatLog.textProperty().addListener((a,b,c) -> {
-			combatLog.setScrollTop(Double.MAX_VALUE);
-		});
+		combatLog.textProperty().addListener((a,b,c) -> combatLog.setScrollTop(Double.MAX_VALUE));
 		
 		//register eventlistener on windfury checkbox
-		windfury.selectedProperty().addListener((a,o,n) -> {
-		    setWindfury(n);
-		});
+		windfury.selectedProperty().addListener((a,o,n) -> setWindfury(n));
+		
+		deathwish.setOnAction((e) -> useDeathwish());
+		
+		//user clicks stop button
+        stopSim.setOnAction((e) -> stopSim());
+        
+        //set scheduler
+        this.scheduler = Executors.newScheduledThreadPool(1);
 	}
 	
 	public void createNewSimulation() {
@@ -74,62 +78,36 @@ public class SimulationController {
 		character.setWeapon(weapon);
 		sim = new Simulation(character);
 		
-		//set scheduler
-        this.scheduler = Executors.newScheduledThreadPool(1);
-		
 		//gets the combatlogqueue
 		combatLogQueue = sim.getCombatLogQueue();
 		
-		//set what happens when user clicks start button
-		//updates gui from the fx application thread through runlater method
-		startSim.setOnAction((e) -> {
-		    windfury.setDisable(true);
-		    duration.setEditable(false);
-			combatLog.clear();
-			sim.begin();
-			
-			
-			guiUpdate = scheduler.scheduleAtFixedRate(new Runnable() {
-				public void run() {
-				    time = sim.getTime() / 1000;
-				    damageDone = sim.getDamage();
-				    int duration = sim.getDurationInSeconds();
-				    int bossHealth = sim.getBossHealth();
-				    
-					Platform.runLater(() -> {
-						setDps(time, damageDone);
-						clearRageBar();
-						updateRageBar();
-						while(!combatLogQueue.isEmpty()) combatLog.appendText(combatLogQueue.poll());
-						
-						//stop sim if time is up or boss is dead
-						if(duration != 0 && time >= duration) stopSim();
-						if(bossHealth != 0 && damageDone >= bossHealth) stopSim();
-					});
-				}
-			}, 0, 10, TimeUnit.MILLISECONDS);
-		});
-		
-		//user clicks stop button
-		stopSim.setOnAction((e) -> {
-			stopSim();
-		});
-		
-		duration.textProperty().addListener((a,o,n) -> {
-            if(n.equals("")) sim.setDurationInSeconds(0);
-            else sim.setDurationInSeconds(Integer.parseInt(n));
-		});
-		
-		bossHealth.textProperty().addListener((a,o,n) ->{
-		    if(n.equals("")) sim.setBossHealth(0);
-            else sim.setBossHealth(Integer.parseInt(n));
-		});
+		registerSimListeners();
 	}
 	
-	//how long the simulation has been running for
-	long time;
-	//damage done in the simulation
-	int damageDone;
+	private void registerSimListeners() {
+	    startSim.setOnAction((e) -> {
+            windfury.setDisable(true);
+            deathwish.setDisable(false);
+            duration.setEditable(false);
+            combatLog.clear();
+            sim.begin();
+            
+            guiUpdate = scheduler.scheduleAtFixedRate(() -> updateGUI(), 0, 10, TimeUnit.MILLISECONDS);
+            
+            startSim.setDisable(true);
+            stopSim.setDisable(false);
+        });
+        
+        duration.textProperty().addListener((a,o,n) -> {
+            if(n.equals("")) sim.setDurationInSeconds(0);
+            else sim.setDurationInSeconds(Integer.parseInt(n));
+        });
+        
+        bossHealth.textProperty().addListener((a,o,n) ->{
+            if(n.equals("")) sim.setBossHealth(0);
+            else sim.setBossHealth(Integer.parseInt(n));
+        });
+	}
 	
 	private void setDps(long time, int damageDone) {
 	    damage.setText(Integer.toString(damageDone));
@@ -143,6 +121,17 @@ public class SimulationController {
         sim.stop();
         duration.setEditable(true);
         windfury.setDisable(false);
+        deathwish.setDisable(true);
+        
+        startSim.setDisable(false);
+        stopSim.setDisable(true);
+	}
+	
+	private void useDeathwish() {
+	    boolean used = sim.useDeathwish();
+	    if(used) {
+	        
+	    }
 	}
 	
 	public void setSim(Simulation sim) {
@@ -151,6 +140,24 @@ public class SimulationController {
 	
 	public void setWindfury(boolean b) {
 	    sim.setWindfury(b);
+	}
+	
+	private void updateGUI() {
+	    long time = Constants.getTime(sim.getStopWatch()) / 1000;
+        int damageDone = sim.getDamage();
+        int duration = sim.getDurationInSeconds();
+        int bossHealth = sim.getBossHealth();
+        
+        Platform.runLater(() -> {
+            setDps(time, damageDone);
+            clearRageBar();
+            updateRageBar();
+            while(!combatLogQueue.isEmpty()) combatLog.appendText(combatLogQueue.poll());
+            
+            //stop sim if time is up or boss is dead
+            if(duration != 0 && time >= duration) stopSim();
+            if(bossHealth != 0 && damageDone >= bossHealth) stopSim();
+        });
 	}
 	
 	private void updateRageBar() {
@@ -167,20 +174,26 @@ public class SimulationController {
 	
 	public void setCharacter(Player character) {
 		this.character = character;
+		createNewSimulation();
 	}
 
 	public void setWeapon(Weapon weapon) {
 		this.weapon = weapon;
+		createNewSimulation();
 	}
 
 	public void setMhProc(Proc mhProc) {
 		this.mhProc = mhProc;
+		createNewSimulation();
 	}
 
 	public void setOhProc(Proc ohProc) {
 		this.ohProc = ohProc;
+		createNewSimulation();
 	}
 	
+	@FXML
+	private Button deathwish;
 	@FXML
 	private TextField bossHealth;
 	@FXML

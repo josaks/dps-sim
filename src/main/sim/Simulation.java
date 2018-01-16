@@ -9,8 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import main.utils.ATTACKRESULT;
-import main.utils.WhiteAttackTable;
-import main.utils.YellowAttackTable;
+import main.utils.AttackTable;
 
 import org.apache.commons.lang3.time.StopWatch;
 import static java.util.concurrent.TimeUnit.*;
@@ -18,6 +17,7 @@ import static java.util.concurrent.TimeUnit.*;
 import main.abilities.Ability;
 import main.abilities.AttackResultContainer;
 import main.abilities.Bloodthirst;
+import main.abilities.Deathwish;
 import main.abilities.GlobalCooldown;
 import main.abilities.HeroicStrike;
 import main.abilities.MainhandAttack;
@@ -35,11 +35,11 @@ public class Simulation {
 	private DamageCounter damageCounter;
 	//player character used in this simulation
 	private Player character;
-	//mh swing timer
+	//mh swing handle
 	private ScheduledFuture<?> mhSwing;
-	//oh swing timer
+	//oh swing handle
 	private ScheduledFuture<?> ohSwing;
-	//ability user timer
+	//abilityuser handle
 	private ScheduledFuture<?> abilityUser;
 	//scheduler
 	private final ScheduledExecutorService scheduler;
@@ -49,6 +49,8 @@ public class Simulation {
 	private int durationInSeconds= 0;
 	//health of the boss being attacked
 	private int bossHealth = 0;
+	
+	AttackTable aTable;
 	
 	public int getBossHealth() {
         return bossHealth;
@@ -73,6 +75,7 @@ public class Simulation {
 		stopwatch = new StopWatch();
 		//creating scheduler
         scheduler = Executors.newScheduledThreadPool(3);
+        dw = new Deathwish(character);
 	}
 	
 	public Queue<String> getCombatLogQueue() {
@@ -87,15 +90,8 @@ public class Simulation {
 		return damageCounter.getDamage();
 	}
 	
-	public long getTime() {
-		long time;
-		if(stopwatch.isStarted()) {
-			stopwatch.split();
-			time = stopwatch.getTime();
-			stopwatch.unsplit();
-		}
-		else time = stopwatch.getTime();
-		return time;
+	public StopWatch getStopWatch() {
+		return stopwatch;
 	}
 	
 	private void display(String message) {
@@ -107,47 +103,93 @@ public class Simulation {
 	
 	//starts this simulation
 	public void begin() {
-	    yellowATable = new YellowAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill());
-	    whiteATable = new WhiteAttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), character.findOhWeaponSkill());
+	    aTable = new AttackTable(character.getHit(), character.getCrit(), character.findMhWeaponSkill(), character.findOhWeaponSkill());
 	    
-		stopwatch.start();
+		if(!stopwatch.isStarted()) stopwatch.start();
 		
 		//cannot schedule task with period of 0
 		if(character.getMainhandSpeed() != 0) {
-		  //schedule mh swing
+		    //schedule mh swing
 	        this.mhSwing = scheduler.scheduleAtFixedRate(new MainhandSwing(), 0, character.getMainhandSpeed(), MILLISECONDS);
 		}
 		
 		if(character.getOffhandSpeed() != 0) {
-		  //schedule oh swing
+		    //schedule oh swing
 	        this.ohSwing = scheduler.scheduleAtFixedRate(new OffhandSwing(), 0, character.getOffhandSpeed(), MILLISECONDS);
 		}
 		
+		List<Ability> abilityList = new LinkedList<Ability>();
+		abilityList.add(new Bloodthirst());
+        abilityList.add(new Whirlwind());
+		
 		//schedule abilityuser, attempts to use ability every 0,01s
-		this.abilityUser = scheduler.scheduleAtFixedRate(new AbilityUser(), 0, 10, MILLISECONDS);
+		this.abilityUser = scheduler.scheduleAtFixedRate(new AbilityUser(abilityList), 0, 10, MILLISECONDS);
+		
+		/*List<Cooldown> cooldowns = new LinkedList<Cooldown>();
+		cooldowns.add(new Deathwish(character));
+		this.cooldownUser = scheduler.scheduleAtFixedRate(new CooldownUser(cooldowns), 0, 10, MILLISECONDS);*/
 	}
 	
 	public void stop() {
 		if(mhSwing != null) mhSwing.cancel(false);
 		if(ohSwing != null) ohSwing.cancel(false);
-		abilityUser.cancel(false);
+		if(abilityUser != null) abilityUser.cancel(false);
 		stopwatch.reset();
 		damageCounter.reset();
 		character.resetRage();
 		combatLogQueue.clear();
 		character.setFlurryStacks(0);
+		
+		//reset cooldowns
+		dw.reset();
 	}
 	
-	YellowAttackTable yellowATable; 
+	/*private class CooldownUser implements Runnable{
+	    List<Cooldown> cdList;
+	    int elapsedTime;
+	    
+	    protected CooldownUser(List<Cooldown> cdList) {
+	        this.cdList = cdList;
+	    }
+	    
+	    public void run() {
+	        elapsedTime = (int)(Constants.getTime(stopwatch) / 1000);
+	        for(Cooldown cd : cdList) {
+	            if(cd.willBeReadyAgain(durationInSeconds, elapsedTime)) {
+	                if(cd.isReady()) {
+	                    if(character.removeRage(cd.getRageCost())) {
+	                        cd.use();
+	                    }
+	                }
+	            }
+	            //if less than say 3m of fight remaining dont use dw till last 30s
+	            else {
+	                
+	            }
+	        }
+	    }
+	}*/
+	
+	private Deathwish dw;
+	
+	public boolean useDeathwish() {
+	    if(dw.isReady()) {
+	        dw.use();
+	        display("Deathwish activated");
+	        return true;
+	    }
+	    else {
+	        display("Deathwish failed to activate, is on cooldown");
+	        return false;
+	    }
+	}
 	
 	private class AbilityUser implements Runnable{
-	    private List<Ability> abilityList = new LinkedList<Ability>();
+	    private List<Ability> abilityList;
 	    private GlobalCooldown gcd = new GlobalCooldown();
 	    
-	    private AbilityUser() {
-	        abilityList.add(new Bloodthirst(character.getAp(), yellowATable, character.findMhWeaponSkill()));
-	        abilityList.add(new Whirlwind(character.getMhWeaponDamageMin(),
-	                character.getMhWeaponDamageMax(), yellowATable, character.findMhWeaponSkill()));
+	    private AbilityUser(List<Ability> abilityList) {
+	        this.abilityList = abilityList;
 	    }
 	    
 	    public void run() {
@@ -155,26 +197,23 @@ public class Simulation {
 	            for(Ability a : abilityList) {
 	                if(a.isReady()) {
 	                    if(character.removeRage(a.getRageCost())) {
-	                        registerAttackResult(a.perform());
+	                        registerAttackResult(a.perform(character, aTable));
 	                        gcd.use();
 	                    }
 	                    break;
 	                }
 	            }
-	            
             }
 	    }
 	}
 	
-	WhiteAttackTable whiteATable;
-	
     private class MainhandSwing implements Runnable{
         public void run() {
             Swing swing;
-            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike(character, yellowATable);
-            else swing = new MainhandAttack(character, whiteATable);
+            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike();
+            else swing = new MainhandAttack();
             if(character.removeRage(swing.getRageCost())) {
-                registerAttackResult(swing.perform());
+                registerAttackResult(swing.perform(character, aTable));
             }
         }
     }
@@ -198,10 +237,10 @@ public class Simulation {
 		public void run() {
 			character.consumeFlurryStack();
 			Swing swing;
-            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike(character, yellowATable);
-            else swing = new MainhandAttack(character, whiteATable);
+            if(character.getRage() > minimumRageForHS) swing = new HeroicStrike();
+            else swing = new MainhandAttack();
             if(character.removeRage(swing.getRageCost())) {
-                registerAttackResult(swing.perform());
+                registerAttackResult(swing.perform(character, aTable));
             }
 			if(character.getFlurryStacks() == 0) {
 			    mhSwing.cancel(false);
@@ -251,8 +290,8 @@ public class Simulation {
 	    if(windfuryOn) {
 	        if(Math.random() < 0.20) {
 	            display("Windfury proc!");
-	            MainhandAttack mhAtk = new MainhandAttack(character, whiteATable);
-	            AttackResultContainer arContainer = mhAtk.perform();
+	            MainhandAttack mhAtk = new MainhandAttack();
+	            AttackResultContainer arContainer = mhAtk.perform(character, aTable);
 	            registerDamage(arContainer.getDamage(), arContainer.getAttackResultString());
 	            if(arContainer.getAttackResult().equals(ATTACKRESULT.CRIT)) gainFlurry();
 	            countProcDamage(character.getMhProc());

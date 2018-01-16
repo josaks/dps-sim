@@ -158,11 +158,11 @@ public class Player {
 	    public Player build();
 	}
 	
-	public double getDamageModifier() {
-	    return this.damageModifier;
+	public synchronized double getDamageModifier() {
+	        return damageModifier;
 	}
-	public void setDamageModifier(double dm) {
-	    this.damageModifier = dm;
+	public synchronized void setDamageModifier(double dm) {
+	        this.damageModifier = dm;
 	}
 	public int getDaggerSkill() {
 		return daggerSkill;
@@ -198,7 +198,7 @@ public class Player {
 		return this.rage.removeRage(rage);
 	}
 	public int getRage() {
-		return rage.getRage();
+		return rage.getResource();
 	}
 	public int getMhWeaponDamageMin() {
 		return weapon.getMhWeaponDamageMin();
@@ -232,5 +232,21 @@ public class Player {
 	}
 	public void resetRage() {
 		rage.reset();
+	}
+	
+	@Override
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Player has " + hit + " hit,");
+	    sb.append(crit + " crit,");
+	    sb.append(ap + " ap,");
+	    sb.append(rage.getResource() + " rage,");
+	    sb.append(axeSkill + " axeskill,");
+	    sb.append(maceSkill + " maceskill,");
+	    sb.append(swordSkill + " swordskill");
+	    sb.append(daggerSkill + " daggerskill");
+	    sb.append(flurryStacks + " stacks of flurry");
+	    sb.append(damageModifier + " damagemodifier");
+	    return sb.toString();
 	}
 }

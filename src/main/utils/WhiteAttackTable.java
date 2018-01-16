@@ -2,7 +2,7 @@ package main.utils;
 
 import org.apache.commons.lang3.NotImplementedException;
 
-public class WhiteAttackTable {
+/*public class WhiteAttackTable{
     private final int hit;
     private final int crit;
     private final int mhWeaponSkill;
@@ -54,3 +54,4 @@ public class WhiteAttackTable {
     }
     
 }
+*/

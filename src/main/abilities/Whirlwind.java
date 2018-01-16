@@ -2,27 +2,19 @@ package main.abilities;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import main.model.Player;
 import main.utils.ATTACKRESULT;
+import main.utils.AttackTable;
 import main.utils.Constants;
-import main.utils.YellowAttackTable;
 
 public class Whirlwind implements Ability{
     private boolean ready = true;
     private Timer timer = new Timer();
     private final int RAGECOST = 25;
     private final int COOLDOWN = 10000;
-    YellowAttackTable attackTable;
-    int mhWeaponSkill;
-    int minWeapDmg;
-    int maxWeapDmg;
-    
-    public Whirlwind(int minWeapDmg, int maxWeapDmg, YellowAttackTable attackTable, int mhWeaponSkill) {
-        this.minWeapDmg = minWeapDmg;
-        this.maxWeapDmg = maxWeapDmg;
-        this.attackTable = attackTable;
-        this.mhWeaponSkill = mhWeaponSkill;
-    }
-    
+
+
     @Override
     public boolean isReady() {
         return ready;
@@ -37,14 +29,16 @@ public class Whirlwind implements Ability{
     }
     
     @Override
-    public AttackResultContainer perform() {
+    public AttackResultContainer perform(Player character, AttackTable attackTable) {
         //starting the cooldown for whirlwind
         cooldown();
         //calculating whirlwind damage
-        int damage = (int) ((minWeapDmg + (maxWeapDmg-minWeapDmg)*Math.random()));
-        ATTACKRESULT result = attackTable.attack(Constants.getRandomIntWithCeiling(1000),
+        int damage = (int) ((character.getMhWeaponDamageMin() + 
+                (character.getMhWeaponDamageMax()-character.getMhWeaponDamageMin())*Math.random()));
+        ATTACKRESULT result = attackTable.yellowAttack(Constants.getRandomIntWithCeiling(1000),
                 Constants.getRandomIntWithCeiling(1000));
-        damage *= ATTACKRESULT.getDamageModifier(result, mhWeaponSkill);
+        damage *= ATTACKRESULT.getResultDamageModifier(result, character.findMhWeaponSkill());
+        damage *= character.getDamageModifier();
         String stringToDisplay = "Whirlwind " + result + " for " + damage;
         AttackResultContainer arContainer = new AttackResultContainer(result, stringToDisplay, damage);
         return arContainer;
