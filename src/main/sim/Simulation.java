@@ -212,9 +212,7 @@ public class Simulation {
             Swing swing;
             if(character.getRage() > minimumRageForHS) swing = new HeroicStrike();
             else swing = new MainhandAttack();
-            if(character.removeRage(swing.getRageCost())) {
-                registerAttackResult(swing.perform(character, aTable));
-            }
+            if(character.removeRage(swing.getRageCost())) registerAttackResult(swing.perform(character, aTable));
         }
     }
 	
@@ -228,9 +226,7 @@ public class Simulation {
 			        (int)(character.getMainhandSpeed() / 1.30), (int)(character.getMainhandSpeed() / 1.30), MILLISECONDS);
 			//do same with ohswingtimer
 		}
-		else {
-			character.setFlurryStacks(3);
-		}
+		else character.setFlurryStacks(3);
 	}
 	
 	private class FlurryfiedMainHandSwing implements Runnable{
@@ -244,7 +240,7 @@ public class Simulation {
             }
 			if(character.getFlurryStacks() == 0) {
 			    mhSwing.cancel(false);
-			    mhSwing = scheduler.scheduleAtFixedRate(new MainhandSwing(), 0, character.getMainhandSpeed(), MILLISECONDS);
+			    mhSwing = scheduler.scheduleAtFixedRate(new MainhandSwing(), character.getMainhandSpeed(), character.getMainhandSpeed(), MILLISECONDS);
 				//ohSwingTimer.schedule(new OffhandSwing(), weapon.getOffhandSpeed(), weapon.getOffhandSpeed());
 			}
 		}
