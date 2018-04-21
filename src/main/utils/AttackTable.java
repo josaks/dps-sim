@@ -16,7 +16,7 @@ public class AttackTable {
     }
     
     //determine attackresult for a white mh attack
-    public ATTACKRESULT mhAttack(int roll) {
+    public ATTACKRESULT mhResult(int roll) {
         if(roll <= 0) throw new IllegalArgumentException("roll can not be 0 or less");
         if(roll > 1000) throw new IllegalArgumentException("roll can not be more than 1000");
         
@@ -46,11 +46,11 @@ public class AttackTable {
     }
     
     //determine attackresult for a white oh attack
-    public ATTACKRESULT ohAttack() {
+    public ATTACKRESULT ohResult() {
         throw new NotImplementedException("OH attack roll not implemented yet");
     }
     
-    public ATTACKRESULT yellowAttack(int rollForHit, int rollForCrit){
+    public ATTACKRESULT yellowResult(int rollForHit, int rollForCrit){
         if(rollForHit <= 0 || rollForCrit <= 0) throw new IllegalArgumentException("rolls can not be 0 or less");
         if(rollForHit > 1000 || rollForCrit > 1000) throw new IllegalArgumentException("rolls can not be more than 1000");
         

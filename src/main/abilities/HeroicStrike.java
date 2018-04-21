@@ -13,7 +13,7 @@ public class HeroicStrike implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)) + 157);
-        ATTACKRESULT result = aTable.yellowAttack(Constants.getRandomIntWithCeiling(1000),
+        ATTACKRESULT result = aTable.yellowResult(Constants.getRandomIntWithCeiling(1000),
                 Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getResultDamageModifier(result, character.findMhWeaponSkill());
         damage *= character.getDamageModifier();

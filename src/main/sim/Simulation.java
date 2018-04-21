@@ -65,10 +65,13 @@ public class Simulation {
 	    return durationInSeconds;
 	}
 	
-	//constants
-	private static int minimumRageForHS = 70;
+	private int minimumRageForHS = 70;
 	
-	public Simulation(Player character) {
+	public void setMinimumRageForHS(int minimumRageForHS) {
+        this.minimumRageForHS = minimumRageForHS;
+    }
+	
+    public Simulation(Player character) {
 		//setting this simulations Player
 		this.character = character;
 		this.damageCounter = new DamageCounter();

@@ -35,7 +35,7 @@ public class Whirlwind implements Ability{
         //calculating whirlwind damage
         int damage = (int) ((character.getMhWeaponDamageMin() + 
                 (character.getMhWeaponDamageMax()-character.getMhWeaponDamageMin())*Math.random()));
-        ATTACKRESULT result = attackTable.yellowAttack(Constants.getRandomIntWithCeiling(1000),
+        ATTACKRESULT result = attackTable.yellowResult(Constants.getRandomIntWithCeiling(1000),
                 Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getResultDamageModifier(result, character.findMhWeaponSkill());
         damage *= character.getDamageModifier();

@@ -25,15 +25,7 @@ public class Main extends Application{
 		try {
     		FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/Main.fxml"));
     		TabPane root = (TabPane)loader.load();
-    		//MainController mainController = loader.<MainController>getController();
-    		/*
-    		SimulationController simController = mainController.getSimulationController();
-    		simController.setSim(sim);*/
     		
-    		/*GridPane root = (GridPane)loader.load();
-    		SimulationController simController = loader.<SimulationController>getController();
-    		simController.setSim(sim);
-    		*/
     		Scene scene = new Scene(root);
     		primaryStage.setScene(scene);
     		primaryStage.setOnCloseRequest(e -> {Platform.exit(); System.exit(0);});

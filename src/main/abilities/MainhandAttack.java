@@ -11,7 +11,7 @@ public class MainhandAttack implements Swing{
         int min = character.getMhWeaponDamageMin();
         long damage = Math.round(((min + (character.getMhWeaponDamageMax()-min)*Math.random())
                 + ((character.getNormalizedMhSpeed()*character.getAp())/14)));
-        ATTACKRESULT result = aTable.mhAttack(Constants.getRandomIntWithCeiling(1000));
+        ATTACKRESULT result = aTable.mhResult(Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getResultDamageModifier(result, character.findMhWeaponSkill());
         damage *= character.getDamageModifier();
         character.addRageByDamage((int)damage);

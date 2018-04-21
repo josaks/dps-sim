@@ -68,9 +68,9 @@
                   <RowConstraints maxHeight="33.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button maxHeight="20.0" mnemonicParsing="false" onAction="#beginSim" prefHeight="20.0" text="Start simulation" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <Button mnemonicParsing="false" onAction="#stopSim" text="Stop simulation" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Button mnemonicParsing="false" onAction="#useDeathwish" text="Deathwish" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                  <Button fx:id="startSim" maxHeight="20.0" mnemonicParsing="false" prefHeight="20.0" text="Start simulation" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                  <Button fx:id="stopSim" mnemonicParsing="false" text="Stop simulation" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                  <Button fx:id="deathwish" mnemonicParsing="false" text="Deathwish" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                </children>
             </GridPane>
             <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">

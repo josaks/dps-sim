@@ -63,10 +63,10 @@ public class SimulationController {
 		//register eventlistener on windfury checkbox
 		windfury.selectedProperty().addListener((a,o,n) -> setWindfury(n));
 		
-		deathwish.setOnAction((e) -> useDeathwish());
+		deathwish.setOnAction(e -> useDeathwish());
 		
 		//user clicks stop button
-        stopSim.setOnAction((e) -> stopSim());
+        stopSim.setOnAction(e -> stopSim());
         
         //set scheduler
         this.scheduler = Executors.newScheduledThreadPool(1);

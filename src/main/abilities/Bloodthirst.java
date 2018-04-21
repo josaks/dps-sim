@@ -34,7 +34,7 @@ public class Bloodthirst implements Ability{
         cooldown();
         //calculating bloodthirst damage
         int damage = (int) (character.getAp() * 0.45);
-        ATTACKRESULT result = aTable.yellowAttack(Constants.getRandomIntWithCeiling(1000),
+        ATTACKRESULT result = aTable.yellowResult(Constants.getRandomIntWithCeiling(1000),
                 Constants.getRandomIntWithCeiling(1000));
         damage *= ATTACKRESULT.getResultDamageModifier(result, character.findMhWeaponSkill());
         damage *= character.getDamageModifier();
